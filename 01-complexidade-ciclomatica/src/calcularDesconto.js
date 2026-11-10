@@ -1,24 +1,30 @@
+//faixas: Faixas de preço
+const REGRAS = {
+  premium: {
+    taxaPadrao: 0.05,
+    faixas: [
+      { acimaDe: 1000, taxa: 0.15, taxaVeterano: 0.20 },
+      { acimaDe: 500, taxa: 0.10 },
+    ],
+  },
+  gold: {
+    taxaPadrao: 0.02,
+    faixas: [
+      { acimaDe: 1000, taxa: 0.10 },
+    ],
+  },
+};
+
 function calcularDesconto(cliente, valor) {
-  if (cliente.tipo === 'premium') {
-    if (valor > 1000) {
-      if (cliente.anosCadastro > 5) {
-        return valor * 0.20;
-      } else {
-        return valor * 0.15;
-      }
-    } else if (valor > 500) {
-      return valor * 0.10;
-    } else {
-      return valor * 0.05;
-    }
-  } else if (cliente.tipo === 'gold') {
-    if (valor > 1000) {
-      return valor * 0.10;
-    } else {
-      return valor * 0.02;
-    }
-  }
-  return 0;
+  const regra = REGRAS[cliente.tipo];
+  if (!regra) return 0;
+
+  const faixa = regra.faixas.find((f) => valor > f.acimaDe);
+  if (!faixa) return valor * regra.taxaPadrao;
+
+  const veterano = cliente.anosCadastro > 5;
+  const taxa = veterano && faixa.taxaVeterano ? faixa.taxaVeterano : faixa.taxa;
+  return valor * taxa;
 }
 
 module.exports = calcularDesconto;
